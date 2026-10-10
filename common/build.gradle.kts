@@ -96,3 +96,36 @@ tasks.test {
 publishing.publications.create<MavenPublication>("maven") {
     from(components["java"])
 }
+
+// Benchmarks for the chunk section cache. Standalone mains under src/bench/java,
+// compiled against main plus packetevents, never packaged and never run by `test`
+// or `build`. Run one with e.g. `./gradlew :common:runSharingBench`.
+sourceSets {
+    create("bench") {
+        java.srcDir("src/bench/java")
+    }
+}
+
+configurations {
+    named("benchImplementation") {
+        extendsFrom(configurations["implementation"])
+    }
+}
+
+dependencies {
+    add("benchImplementation", sourceSets["main"].output)
+    add("benchImplementation", libs.packetevents.api)
+    add("benchImplementation", libs.grim.api)
+}
+
+fun registerChunkBench(name: String, benchMainClass: String) {
+    tasks.register<JavaExec>(name) {
+        group = "benchmark"
+        classpath = sourceSets["bench"].runtimeClasspath
+        mainClass.set(benchMainClass)
+    }
+}
+
+registerChunkBench("runSectionBench", "ac.grim.grimac.benchmark.chunks.SectionBench")
+registerChunkBench("runSharingBench", "ac.grim.grimac.benchmark.chunks.SharingBench")
+registerChunkBench("runCompareBench", "ac.grim.grimac.benchmark.chunks.CompareBench")
