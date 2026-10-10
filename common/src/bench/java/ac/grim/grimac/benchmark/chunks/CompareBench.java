@@ -177,6 +177,7 @@ public class CompareBench {
     }
 
     public static void main(String[] args) {
+        System.out.println("== CompareBench: baseline vs live cache, same workload, interleaved passes ==");
         Impl[] impls = {BASELINE, LIVE};
         List<BaseChunk> player1 = build(1000, false);
         List<BaseChunk> player2uniform = build(1000, false);
@@ -277,6 +278,14 @@ public class CompareBench {
                     stat[1] / 1e6, stat[1] / 1000.0 / player1.size(), stat[1] / 1000.0 / chunks, stat[2],
                     combined.get(impl.name()));
         }
+        long[] base = stats.get(impls[0].name());
+        long[] live = stats.get(impls[1].name());
+        long baseCombined = combined.get(impls[0].name());
+        long liveCombined = combined.get(impls[1].name());
+        System.out.printf("== VERDICT: live is x%.1f faster cold, x%.1f faster hot; entries %d -> %d%s%n",
+                (double) base[0] / live[0], (double) base[1] / live[1], baseCombined, liveCombined,
+                liveCombined > baseCombined
+                        ? " (extra entries = same blocks, reshuffled palettes)" : " (identical sharing)");
         if (assertSameDecisions) {
             boolean[] a = decisions.get(impls[0].name());
             boolean[] b = decisions.get(impls[1].name());

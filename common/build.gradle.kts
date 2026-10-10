@@ -129,3 +129,18 @@ fun registerChunkBench(name: String, benchMainClass: String) {
 registerChunkBench("runSectionBench", "ac.grim.grimac.benchmark.chunks.SectionBench")
 registerChunkBench("runSharingBench", "ac.grim.grimac.benchmark.chunks.SharingBench")
 registerChunkBench("runCompareBench", "ac.grim.grimac.benchmark.chunks.CompareBench")
+
+// Runs every chunk benchmark in order: micro -> end-to-end -> before/after.
+tasks.register("runChunkBenches") {
+    group = "benchmark"
+    description = "Runs all chunk section cache benchmarks."
+    dependsOn("runCompareBench")
+}
+
+tasks.named("runCompareBench") {
+    dependsOn("runSharingBench")
+}
+
+tasks.named("runSharingBench") {
+    dependsOn("runSectionBench")
+}

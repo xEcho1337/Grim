@@ -80,6 +80,7 @@ public class SharingBench {
     }
 
     public static void main(String[] args) {
+        System.out.println("== SharingBench: full player view (16x16 chunks) through the live cache ==");
         System.out.println("== build corpora (2 players, same bytes, distinct objects) ==");
         int[] nonAir = new int[1];
         List<BaseChunk> player1 = buildCorpus(1000, nonAir);
@@ -181,5 +182,12 @@ public class SharingBench {
                 bestCold / 1e6, bestCold / 1000.0 / player1.size(), bestCold / 1000.0 / 256);
         System.out.printf("hot  16x16x24: %8.1f ms total | %6.2f us/section | %6.1f us/chunk%n",
                 bestHot / 1e6, bestHot / 1000.0 / player2.size(), bestHot / 1000.0 / 256);
+        System.out.println("== VERDICT: what does a player join cost? ==");
+        System.out.printf("first player loading 256 chunks : %.1f ms spread over 256 packets (%.1f us each)%n",
+                bestCold / 1e6, bestCold / 1000.0 / 256);
+        System.out.printf("next player, same area         : %.1f ms spread over 256 packets (%.1f us each)%n",
+                bestHot / 1e6, bestHot / 1000.0 / 256);
+        System.out.printf("safety: %d collisions, %d false shares, air shared x%d, eviction %s%n",
+                collisions, falseShared, airShared, evicted ? "OK" : "BROKEN");
     }
 }
